@@ -49,7 +49,7 @@ export function renderTemplate(template: string, vars: TemplateVars): string {
  * @param invoiceIds - DBから取得した請求書IDの配列
  * @returns テンプレート置換用の変数マップ
  */
-export function buildUpdateVars(
+export function buildUpdateShippingAndBillingInfoVars(
   rows: Row[],
   userId: number,
   baseDate: Date,
@@ -90,7 +90,7 @@ export function buildUpdateShippingAndBillingInfo(
   invoiceIds: string[],
 ): string {
   const rows = parseCsv(csvContent);
-  const vars = buildUpdateVars(rows, userId, baseDate, invoiceIds);
+  const vars = buildUpdateShippingAndBillingInfoVars(rows, userId, baseDate, invoiceIds);
   return renderTemplate(template, vars);
 }
 

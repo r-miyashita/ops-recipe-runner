@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseCsv, renderTemplate, buildUpdateVars } from "./csvToSql.js";
+import { parseCsv, renderTemplate, buildUpdateShippingAndBillingInfoVars } from "./csvToSql.js";
 import { parseDate } from "./dateUtils.js";
 
 describe("parseCsv", () => {
@@ -49,7 +49,7 @@ describe("parseCsv", () => {
 });
 
 
-describe("buildUpdateVars", () => {
+describe("buildUpdateShippingAndBillingInfoVars", () => {
   const rows = [
     { order_id: "10001", shipping_id: "20001" },
     { order_id: "10002", shipping_id: "20002" },
@@ -59,34 +59,34 @@ describe("buildUpdateVars", () => {
   const invoiceIds = ["30001", "30002"];
 
   it("shippingIdsがCSVの行データからカンマ区切りで生成される", () => {
-    const result = buildUpdateVars(rows, userId, baseDate, invoiceIds);
+    const result = buildUpdateShippingAndBillingInfoVars(rows, userId, baseDate, invoiceIds);
     expect(result.shippingIds).toBe("20001,20002");
   });
   it("invoiceIdsが引数からカンマ区切りで生成される", () => {
-    const result = buildUpdateVars(rows, userId, baseDate, invoiceIds);
+    const result = buildUpdateShippingAndBillingInfoVars(rows, userId, baseDate, invoiceIds);
     expect(result.invoiceIds).toBe("30001,30002");
   });
   it("userIdが文字列に変換されて設定される", () => {
-    const result = buildUpdateVars(rows, userId, baseDate, invoiceIds);
+    const result = buildUpdateShippingAndBillingInfoVars(rows, userId, baseDate, invoiceIds);
     expect(result.userId).toBe("1018");
   });
   it("baseDateがYYYY-MM-DD形式で設定される", () => {
-    const result = buildUpdateVars(rows, userId, baseDate, invoiceIds);
+    const result = buildUpdateShippingAndBillingInfoVars(rows, userId, baseDate, invoiceIds);
     expect(result.baseDate).toBe("2026-07-01");
   });
   it("newDepositDueDateが翌月初の14日後の翌営業日になる（土日は繰り上げ）", () => {
-    const result = buildUpdateVars(rows, userId, baseDate, invoiceIds);
+    const result = buildUpdateShippingAndBillingInfoVars(rows, userId, baseDate, invoiceIds);
     // 翌月初=2026-08-01, +14日=2026-08-15(土) → 翌営業日 2026-08-17(月)
     expect(result.newDepositDueDate).toBe("2026-08-17");
   });
   it("newDepositGraceDateはnewDepositDueDateと同日になる", () => {
-    const result = buildUpdateVars(rows, userId, baseDate, invoiceIds);
+    const result = buildUpdateShippingAndBillingInfoVars(rows, userId, baseDate, invoiceIds);
     expect(result.newDepositGraceDate).toBe(result.newDepositDueDate);
     expect(result.newDepositGraceDate).toBe("2026-08-17");
   });
   it("14日後が営業日ならその日付になる（繰り上げなし）", () => {
     const baseDateWeekday = parseDate("2026-06-01"); // 翌月初=2026-07-01, +14日=2026-07-15(水)
-    const result = buildUpdateVars(rows, userId, baseDateWeekday, invoiceIds);
+    const result = buildUpdateShippingAndBillingInfoVars(rows, userId, baseDateWeekday, invoiceIds);
     expect(result.newDepositDueDate).toBe("2026-07-15");
   });
 });
