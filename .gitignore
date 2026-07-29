@@ -1,0 +1,8 @@
+node_modules/
+.env
+
+# 生成物（in.csv + テンプレートから再生成可能）
+**/data/out.sql
+
+# 手動配置のDBダンプ（本番相当データの可能性あり。READMEは追跡する）
+docker/mysql/dump/*.sql

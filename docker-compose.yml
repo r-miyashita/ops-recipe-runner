@@ -1,0 +1,28 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: script-sandbox-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: sandbox
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  script:
+    build: .
+    env_file: .env
+    environment:
+      DB_HOST: db
+    volumes:
+      - ./src/script:/app/src/script
+    depends_on:
+      db:
+        condition: service_healthy
