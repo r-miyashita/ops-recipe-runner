@@ -82,7 +82,7 @@ export function buildUpdateVars(
  * @param invoiceIds - DBから取得した請求書IDの配列
  * @returns 実行可能なSQL文字列
  */
-export function buildUpdateShipmentDate(
+export function buildUpdateShippingAndBillingInfo(
   template: string,
   csvContent: string,
   userId: number,

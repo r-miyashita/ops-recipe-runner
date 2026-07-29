@@ -1,7 +1,10 @@
 import { readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import { fileURLToPath } from "url";
-import { parseCsv, buildUpdateShipmentDate } from "../../../lib/csvToSql.js";
+import {
+  parseCsv,
+  buildUpdateShippingAndBillingInfo,
+} from "../../../lib/csvToSql.js";
 import { parseDate } from "../../../lib/dateUtils.js";
 import { fetchInvoiceIds } from "../../../lib/queries.js";
 
@@ -31,7 +34,7 @@ async function main() {
   const { userId, baseDate } = parseArgs();
 
   const template = readFileSync(
-    join(import.meta.dirname, "updateShipmentDateAndCloseDate.template.sql"),
+    join(import.meta.dirname, "updateShippingAndBillingInfo.template.sql"),
     "utf-8",
   );
   const csvContent = readFileSync(
@@ -42,7 +45,7 @@ async function main() {
   const rows = parseCsv(csvContent);
   const orderIds = rows.map((r) => r.order_id);
   const invoiceIds = await fetchInvoiceIds(orderIds);
-  const sql = buildUpdateShipmentDate(
+  const sql = buildUpdateShippingAndBillingInfo(
     template,
     csvContent,
     userId,

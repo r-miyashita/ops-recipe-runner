@@ -4,7 +4,7 @@
 
 ## 対象ルーティン（実行順）
 
-1. updateShipmentDate
+1. updateShippingAndBillingInfo
 2. updateSalesInfo
 
 ## 備考

@@ -1,4 +1,4 @@
-# updateShipmentDateAndCloseDate
+# updateShippingAndBillingInfo
 
 ## 目的
 
@@ -18,7 +18,7 @@
 
 ## SQLテンプレート
 
-[updateShipmentDateAndCloseDate.template.sql](./updateShipmentDateAndCloseDate.template.sql)
+[updateShippingAndBillingInfo.template.sql](./updateShippingAndBillingInfo.template.sql)
 
 <details>
 

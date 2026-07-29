@@ -72,7 +72,7 @@ description: 月次定例のルーティンスクリプト(src/script/routine配
 | ルーティン | npmスクリプト | パラメータ |
 | --- | --- | --- |
 | updateSalesInfo | csv-to-sql:updateSalesInfo | `--userId`(数値) / `--variation`(A/B/C) |
-| updateShipmentDate | csv-to-sql:updateShipmentDateAndCloseDate | `--userId`(数値) / `--baseDate`(YYYY-MM-DD) |
+| updateShippingAndBillingInfo | csv-to-sql:updateShippingAndBillingInfo | `--userId`(数値) / `--baseDate`(YYYY-MM-DD) |
 
 > 新しいルーティンを追加したら、この表と各 `_sets/*.md` を更新すること。
 > パラメータ仕様は各 `script.ts` の `parseArgs()` が正となる（この表が食い違う場合はコードを信頼）。
