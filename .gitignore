@@ -6,3 +6,7 @@ node_modules/
 
 # 手動配置のDBダンプ（本番相当データの可能性あり。READMEは追跡する）
 docker/mysql/dump/*.sql
+
+# 要件ヒアリング時に運用メンバーが提出する実務データ（本番データの可能性あり）。
+# analyst が整理した要件シート（<name>/<name>.md）は追跡する。
+doc/requirements/**/samples/
