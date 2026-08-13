@@ -4,8 +4,6 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "csv-to-sql:updateShippingAndBillingInfo": "tsx src/script/routine/updateShippingAndBillingInfo/script.ts",
-    "csv-to-sql:updateSalesInfo": "tsx src/script/routine/updateSalesInfo/script.ts",
     "test": "vitest run"
   },
   "keywords": [],
