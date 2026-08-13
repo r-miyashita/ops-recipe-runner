@@ -19,7 +19,7 @@ INSERT INTO `t_sales` (`sales_id`, `order_detail_id`, `product_id`, `product_nam
   (60004, 40004, 50001, 'Product A', 5, 5000, 5, 0, 1018, NOW()),
   (60005, 40005, 50004, 'Product D', 1, 12000, 3, 0, 1018, NOW());
 
-INSERT INTO `t_shippping` (`shipping_id`, `order_id`, `shipment_date`, `shipping_status`, `user_id`, `logical_delete_flag`, `update_datetime`) VALUES
+INSERT INTO `t_shipping` (`shipping_id`, `order_id`, `shipment_date`, `shipping_status`, `user_id`, `logical_delete_flag`, `update_datetime`) VALUES
   (20001, 10001, '2026-06-10', 2, 1018, 0, NOW()),
   (20002, 10002, '2026-06-10', 2, 1018, 0, NOW()),
   (20003, 10003, '2026-06-11', 1, 1018, 0, NOW()),

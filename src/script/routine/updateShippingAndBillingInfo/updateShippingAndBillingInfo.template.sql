@@ -40,7 +40,7 @@ set @newShipmentDate = ( SELECT LAST_DAY(DATE_ADD(@monthEnd, INTERVAL 1 MONTH)) 
 /***
 * backup
 */
-select * from t_shippping
+select * from t_shipping
 where shipping_id in ({{shippingIds}});
 
 
@@ -50,7 +50,7 @@ where shipping_id in ({{shippingIds}});
 BEGIN;
 -- -
 
-UPDATE `t_shippping`
+UPDATE `t_shipping`
 SET
   `shipment_date` = @newShipmentDate,
   `user_id` = @userId,
@@ -68,7 +68,7 @@ select
   count(1) `cnt`,
   group_concat(shipping_id separator ',') `shipping_ids`
 from
-  t_shippping
+  t_shipping
 where
   shipment_date between @monthStart and @monthEnd
   and shipping_status in (1, 2);

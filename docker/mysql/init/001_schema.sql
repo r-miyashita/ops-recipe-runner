@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS `t_sales` (
   PRIMARY KEY (`sales_id`)
 );
 
-CREATE TABLE IF NOT EXISTS `t_shippping` (
+CREATE TABLE IF NOT EXISTS `t_shipping` (
   `shipping_id`          BIGINT       NOT NULL,
   `order_id`             BIGINT       NOT NULL,
   `shipment_date`        DATE,
