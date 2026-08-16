@@ -22,7 +22,7 @@ model: sonnet
 - レシピ／テンプレSQL（ドキュメンター成果物）
 - `src/lib/*.ts`（前処理コード）と `*.test.ts` / `*.integration.test.ts`
 - 運用ドキュメント（ドキュメンター成果物）
-- 基準: `CLAUDE.md`・`doc/operation-pattern-example.md`・`doc/architecture/recipe-creation.md`・`doc/testing-policy.md`
+- 基準: `CLAUDE.md`・`doc/recipe-format.md`（レシピ正準）・`doc/operation-pattern-example.md`・`doc/architecture/recipe-creation.md`・`doc/testing-policy.md`
 
 ## レビュー観点
 

@@ -26,6 +26,7 @@ model: sonnet
 - `doc/requirements/<name>/design.md` … 処理設計（主入力）
 - `doc/requirements/<name>/<name>.md` … 要件シート
 - `doc/requirements/<name>/samples/`（手作業SQL・手順書 `procedure.md` は図の元になる）
+- `doc/recipe-format.md` … **レシピの正準フォーマット**（この形で作る）
 - `doc/operation-pattern-example.md` … レシピ/プレースホルダ/lookup のパターン例
 - `doc/architecture/recipe-creation.md` … レシピ作成フローと**レシピ静的チェック項目**
 - `docker/mysql/init/001_schema.sql` … ER図・lookup識別子の実在確認
@@ -33,9 +34,10 @@ model: sonnet
 ## 成果物
 
 ### ① Agent向けレシピ（Backlog。移行前の暫定はファイルで可）
-- プレースホルダを種別で宣言（リテラル=Agent / データ由来=前処理）。
-- lookup は宣言的に（`from/select/key/filters`・多段 steps・論理削除除外）。生SQLを直書きしない。
-- テンプレSQL参照とパラメータ定義。
+**`doc/recipe-format.md` の正準フォーマットに従う**（`name/purpose/template/input_csv/parameters/placeholders/lookups/safety`）。
+- プレースホルダを handler で宣言（`agent-literal` / `preprocess-csv` / `preprocess-lookup`）と `source`。
+- lookup は宣言的に（`from/select/key/keySource/filters`・多段 steps・論理削除除外）。生SQLを直書きしない。
+- テンプレの全 `{{key}}` が `placeholders` に定義されていること。
 
 ### ② 運用メンバー向けドキュメント
 ```markdown
