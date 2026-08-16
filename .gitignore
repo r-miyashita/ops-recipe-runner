@@ -1,6 +1,9 @@
 node_modules/
 .env
 
+# MCP設定（APIキー等の秘密を含みうるため追跡しない）
+.mcp.json
+
 # 生成物（in.csv + テンプレートから再生成可能）
 **/data/out.sql
 
