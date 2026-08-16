@@ -28,19 +28,18 @@ model: sonnet
 - `doc/operation-pattern-example.md` … リテラル/CSV/lookup の実装パターン例
 - `src/lib/*.ts` … 前処理コアの実例
 
+> レシピ・テンプレSQL は**ドキュメンターの担当**（`documenter.md`）。実装担当は**前処理コードに専念**する。
+
 ## 成果物
 
-1. **Backlog のレシピ＋テンプレSQL**（Backlog移行前の暫定はファイルで可）:
-   - プレースホルダを種別（リテラル=Agent / データ由来=前処理）で宣言。
-   - lookup は宣言的に（`from/select/key/filters` と多段 steps・論理削除除外）。生SQLを直書きしない。
-2. **前処理コード**（必要なときだけ, `src/lib/`）:
+1. **前処理コード**（必要なときだけ, `src/lib/`）:
    - 既存 lookup で表現できない場合のみ、最小限の関数を追加。
    - 追加したら tester に単体/結合テストを依頼（結合は `*.integration.test.ts`・DB前提）。
-3. **スキーマ変更**（新テーブル/列が要るとき）: `docker/mysql/init/001_schema.sql`（＋ seed）。反映は `down -v` 必要。
+2. **スキーマ変更**（新テーブル/列が要るとき）: `docker/mysql/init/001_schema.sql`（＋ seed）。反映は `down -v` 必要。
 
 ## Definition of Done
 
 - 前処理コードを足した場合、`npx tsc --noEmit` が通り、対応する単体/結合テストがある。
-- レシピ/テンプレが設計どおり（プレースホルダの種別・lookup宣言が `design.md` と一致）。
-- 最終SQLが静的安全チェックを満たす形（`BEGIN/ROLLBACK`・空WHERE無し・backup・未置換 `{{...}}` 無し）。
+- 追加した前処理が `design.md` の lookup宣言/CSV加工の要求を満たす（識別子は実スキーマに存在）。
 - コード追加が必要十分（過剰な汎用化・未使用・防御的分岐が無い）。既存前処理で足りるなら**コードを足さない**。
+- レシピ・テンプレSQL・最終SQLの妥当性は範囲外（ドキュメンター/Agentの責務）。
