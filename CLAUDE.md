@@ -1,6 +1,7 @@
 # script-sandbox
 
-運用スクリプトを題材にしたJS/TS練習用sandbox。CSVから実行用SQLを生成するルーティン群を持つ。
+運用スクリプトを題材にしたJS/TS sandbox。運用メンバーが手作業で流しているSQLを、入力(CSV)と
+テンプレートのプレースホルダーから再現し、（将来は）Backlogチケットとして起票する AI駆動ワークフローを構築する。
 
 ## このプロジェクトの目的（価値観・全担当の前提）
 
@@ -12,45 +13,51 @@
 - **提案の判断軸**：lookup select やリファクタの提案も、「作業時間削減」ではなく
   「手入力・文脈切り替えの削減」の観点で価値を測る。過剰な汎用化はしない。
 
-## ルーティンの構成
+## アーキテクチャ（責務分割）
 
-`src/script/routine/<name>/` が1ルーティン。各ディレクトリの構成:
+テンプレSQL・レシピは Backlog に外出しし、コード（この repo）は「前処理」に専念する。
 
-- `script.ts` — エントリポイント。`parseArgs()` でCLI引数を検証し、CSVとテンプレートからSQLを生成して `data/out.sql` に出力する。
-- `<name>.template.sql` — `{{key}}` プレースホルダーを含むSQLテンプレート。
-- `data/in.csv` — 入力（手動配置）。
-- `README.md` — 目的・入力・パラメータ・実行方法。
-- `_sets/*.md` — 複数ルーティンをまとめて実行するためのセット定義。
+- **Backlog**: チケットレシピ＋テンプレSQL（更新用SQLの正。運用メンバーがレビュー）。
+- **Agent**: レシピ解釈・リテラル置換・日付計算・最終SQL組み立て・静的安全チェック・起票。
+- **前処理コア（この repo, `src/lib/`）**: CSV解析・lookup（DB参照）。テンプレSQLは持たない。
+  - `csv.ts` — `parseCsv`（CSV解析）
+  - `queries.ts` — lookup（`fetchInvoiceIds`/`fetchSalesIds`。将来は宣言的な汎用実行器へ）
+  - `db.ts` — DB接続
 
-npm スクリプト名は `package.json` の `scripts`（`csv-to-sql:*`）を参照。
+将来像とシーケンスは `doc/architecture/ticket-workflow.md`、具体的なオペレーション例は
+`doc/operation-pattern-example.md` を参照。
 
-## 月次定例の実行
+## 運用ワークフロー（担当エージェント）
 
-AI駆動で定例を回すワークフローは `.claude/skills/run-routine/` にスキル化されている。
-「定例フォルダを実行して」等で起動する。詳細はそのSKILL.mdを参照。
+新しい定例の作成は、フェーズごとの担当エージェント（`.claude/agents/`）で進める。
 
-## 新しいルーティンを追加するとき
+| フェーズ | 担当 | 主な成果物 |
+| --- | --- | --- |
+| 要件 | requirements-analyst | `doc/requirements/<name>/<name>.md` |
+| 設計 | designer | `doc/requirements/<name>/design.md` |
+| 実装 | implementer | 前処理コード（必要時）＋ Backlogのレシピ/テンプレ |
+| テスト | tester | vitest（単体＋結合） |
+| ドキュメント/レビュー/PJ管理 | documenter / reviewer / new-routine スキル | （未整備） |
 
-1. `src/script/routine/<name>/` を作り、`script.ts`・`template.sql`・`README.md` を用意する。
-2. `package.json` の `scripts` に `csv-to-sql:<name>` を追加する。
-3. `.claude/skills/run-routine/SKILL.md` の「現在のルーティン一覧」表を更新する。
-4. 定例セットに含めるなら該当の `_sets/*.md` にも追記する。
+## テスト
+
+- `npm test` — 単体（純粋な前処理。`*.integration.test.ts` は除外）。
+- `npm run test:integration` — 結合（lookup×DB。`docker compose up -d db` が前提）。
+- 方針は `doc/testing-policy.md`。**受入（生成SQLの忠実性）・日付**はコードでなく Agent の確認観点で担保する。
 
 ## DB
 
-- スキーマ/seed: `docker/mysql/init/`（初回コンテナ作成時のみ実行）。
-- dump復元: `docker/mysql/dump/`（手動配置＋手動復元）。
+- スキーマ/seed: `docker/mysql/init/`（初回コンテナ作成時のみ実行）。スキーマ変更の反映は
+  `docker compose down -v && docker compose up -d db` が必要。
+- dump復元: `docker/mysql/dump/`（手動配置＋手動復元。スキーマ空ダンプ `schema.sql` も可）。
 - 金額カラムは `INT`、ID系は `BIGINT`、論理削除は `logical_delete_flag TINYINT NOT NULL DEFAULT 0`。
 
-## 日付の扱い（重要）
+## 日付の扱い（Agentの確認観点）
 
-このプロジェクトの日付は時刻・TZの概念を持たない「日付リテラル（暦日）」として扱う。
-実装は **ローカル系メソッドで一貫させる**（UTC系と混ぜない）。理由は依存する
-`jp-holidays` が `getFullYear/getMonth/getDate` などローカル系で日付を読むため。
+日付計算（締日・入金日など）は **Agent の責務**（コードには持たない）。過去に踏んだ落とし穴を
+再発させないため、Agent が日付を出したら次を確認する（詳細は `doc/architecture/ticket-workflow.md` §5）:
 
-- 文字列 → Date: `parseDate("YYYY-MM-DD")`（`src/lib/dateUtils.ts`）を使う。
-  `new Date("YYYY-MM-DD")` は **UTC解釈**になり負オフセットのTZでズレるため使わない。
-- Date → 文字列: `formatDate`（ローカルの Y/M/D を組み立て）。`toISOString()` は使わない。
-- 月初などの構築も `new Date(y, m, 1)`（ローカル）。`Date.UTC(...)` と混在させない。
-- 系統を混ぜると JST では偶然通っても UTC/負オフセットのTZ（CI等）で壊れる。
-  テストは `TZ=UTC` / `TZ=America/New_York` でも通ることを確認する。
+- 週末・日本の祝日をまたぐ「◯営業日後」は翌営業日へ繰り上がっているか。
+- 入金予定日=入金猶予日の同日仕様など、要件どおりか。
+- 「翌月初」等の起点月がズレていないか。
+- SQL上は `'YYYY-MM-DD'` とクォート付きの日付リテラルか（`2026-07-15` の数値計算に化けていないか）。
