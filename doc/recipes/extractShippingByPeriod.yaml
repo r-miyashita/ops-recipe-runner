@@ -1,0 +1,27 @@
+name: extractShippingByPeriod
+purpose: 指定期間に出荷されたデータ（t_shipping）を抽出する（read-only）
+timing: 都度
+template: doc/recipes/extractShippingByPeriod.template.sql   # 暫定（Backlog移行前はファイル参照）
+
+# --- Host に確認するリテラルパラメータ ---
+parameters:
+  - key: fromDate
+    meaning: 抽出期間の開始日
+    type: "date(YYYY-MM-DD)"
+  - key: toDate
+    meaning: 抽出期間の終了日
+    type: "date(YYYY-MM-DD)"
+
+# --- プレースホルダの handler と由来（リテラルのみパターン） ---
+placeholders:
+  - { key: fromDate, handler: agent-literal, source: "param:fromDate" }
+  - { key: toDate,   handler: agent-literal, source: "param:toDate" }
+
+# input_csv / lookups は無し（リテラルのみ）
+
+# --- 安全（read-only なので更新枠は不要） ---
+safety:
+  transaction: false          # read-only の SELECT
+  backup: false
+  rollback_check: "該当なし（更新なし）"
+  note: "read-only。WHEREに期間条件あり（空WHEREでない）／未置換なしを確認する"
