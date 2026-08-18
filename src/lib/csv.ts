@@ -17,3 +17,20 @@ export function parseCsv(rawContent: string): Row[] {
   if (rows.length === 0) throw new Error("CSVに処理対象のデータがありません");
   return rows;
 }
+
+/**
+ * 行データから指定列の値を取り出し、カンマ区切りの文字列にする。
+ * レシピの `preprocess-csv`（例: `csv:order_id`）を満たすための処理。
+ * @param rows - `parseCsv` で得た行データ
+ * @param column - 抽出する列名
+ * @returns カンマ区切りの値（例: "10001,10002,10003"）
+ * @throws 指定列が存在しない場合
+ */
+export function extractColumn(rows: Row[], column: string): string {
+  if (rows.length > 0 && !(column in rows[0])) {
+    throw new Error(
+      `列 "${column}" が見つかりません（存在する列: ${Object.keys(rows[0]).join(", ")}）`,
+    );
+  }
+  return rows.map((r) => r[column]).join(",");
+}

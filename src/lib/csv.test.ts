@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseCsv } from "./csv.js";
+import { parseCsv, extractColumn } from "./csv.js";
 
 describe("parseCsv", () => {
   const header = `col_1,col_2,col_3`;
@@ -43,6 +43,22 @@ describe("parseCsv", () => {
   it("データ行が0件の場合エラーを投げる", () => {
     expect(() => parseCsv(header)).toThrow(
       "CSVに処理対象のデータがありません",
+    );
+  });
+});
+
+describe("extractColumn", () => {
+  const rows = [
+    { order_id: "10001", shipping_id: "20001" },
+    { order_id: "10002", shipping_id: "20002" },
+    { order_id: "10003", shipping_id: "20003" },
+  ];
+  it("指定列の値をカンマ区切りで返す", () => {
+    expect(extractColumn(rows, "order_id")).toBe("10001,10002,10003");
+  });
+  it("存在しない列を指定するとエラーを投げる", () => {
+    expect(() => extractColumn(rows, "unknown")).toThrow(
+      '列 "unknown" が見つかりません',
     );
   });
 });

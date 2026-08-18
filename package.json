@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "vitest run",
-    "test:integration": "vitest run --config vitest.integration.config.ts"
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "preprocess:extract-column": "tsx src/script/preprocess/extractColumn.ts"
   },
   "keywords": [],
   "author": "",
