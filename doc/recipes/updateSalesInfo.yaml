@@ -1,0 +1,44 @@
+name: updateSalesInfo
+purpose: CSVで指定した受注の営業担当情報（担当者・拠点）を更新する
+timing: 都度
+template: doc/recipes/updateSalesInfo.template.sql   # 暫定（Backlog移行前はファイル参照）
+
+# --- 前処理が使う入力CSV ---
+# 実務CSVのヘッダーは日本語表記（受注ID = DBの order_id に対応）
+input_csv:
+  columns:
+    - 受注ID      # 更新対象の受注ID（orderIds抽出の種。DB上は order_id）
+
+# --- Host に確認するリテラルパラメータ ---
+parameters:
+  - key: userId
+    meaning: 作業者ID
+    type: number
+  - key: variation
+    meaning: 更新バリエーション（担当者・拠点のセット）
+    type: "enum(A,B,C)"
+
+# --- バリエーション選択（1パラメータで複数リテラルが連動） ---
+variants:
+  key: variation
+  options:
+    A: { salesUserId: 101, salesUserName: teamA, salesOfficeId: 5 }
+    B: { salesUserId: 201, salesUserName: teamB, salesOfficeId: 3 }
+    C: { salesUserId: 301, salesUserName: teamC, salesOfficeId: 2 }
+
+# --- プレースホルダの handler と由来 ---
+placeholders:
+  - { key: userId,         handler: agent-literal, source: "param:userId" }
+  - { key: salesUserId,    handler: agent-literal, source: "variant:salesUserId" }
+  - { key: salesUserName,  handler: agent-literal, source: "variant:salesUserName" }
+  - { key: salesOfficeId,  handler: agent-literal, source: "variant:salesOfficeId" }
+  - { key: orderIds,       handler: preprocess-csv, source: "csv:受注ID" }
+
+# lookups は無し（CSVのみ、DB参照なし）
+
+# --- 安全（更新系） ---
+safety:
+  transaction: true            # BEGIN; ... ROLLBACK|COMMIT
+  backup: true                 # 更新前に t_order を backup select
+  rollback_check: "デフォルトはROLLBACKコメントアウト。DML実行は人間が判断して行う"
+  note: "更新系のためチケットにはSQL提示までとし、DB実行はHostが行う"
