@@ -20,6 +20,7 @@
 | `template` | ✔ | テンプレSQLの所在（Backlogドキュメント参照。暫定はファイルパス） |
 | `input_csv` | | 前処理が使う入力CSV（列と意味） |
 | `parameters` | | Host に確認するリテラルパラメータ（と日付の派生ルール） |
+| `variants` | | Host が選ぶ1パラメータに複数リテラルが連動するバリエーション定義 |
 | `placeholders` | ✔ | 各 `{{key}}` の handler と値の由来 |
 | `lookups` | | 宣言的 lookup（データ由来プレースホルダの生成元） |
 | `safety` | ✔ | トランザクション枠・backup・ロールバック基準（実行時の静的安全チェックの期待） |
@@ -28,9 +29,26 @@
 
 | handler | 埋める人 | source の書き方 |
 | --- | --- | --- |
-| `agent-literal` | Agent | `param:<名>` / `fixed:<値>` / `date:<ルール>` |
+| `agent-literal` | Agent | `param:<名>` / `fixed:<値>` / `date:<ルール>` / `variant:<key>`（下記 variants を参照） |
 | `preprocess-csv` | 前処理 | `csv:<列名>`（CSVから抽出しカンマ連結） |
 | `preprocess-lookup` | 前処理 | `lookup:<名>`（下記 lookups を実行） |
+
+## variants 宣言（バリエーション選択）
+
+Host が1つのパラメータ（例: `variation: A/B/C`）を選ぶと、複数のリテラルがまとめて決まるケースに使う。
+
+```yaml
+variants:
+  key: variation          # Host が選ぶパラメータ名
+  options:
+    A: { salesUserId: 101, salesUserName: teamA, salesOfficeId: 5 }
+    B: { salesUserId: 201, salesUserName: teamB, salesOfficeId: 3 }
+    C: { salesUserId: 301, salesUserName: teamC, salesOfficeId: 2 }
+```
+
+- `variants.key` は `parameters` にも列挙する（型は `enum(<選択肢>)`）。
+- `placeholders` からは `source: "variant:<option内のキー名>"` で参照する（例 `variant:salesUserId`）。
+- Host が未選択の間は Agent が選択肢を提示して確認する（勝手に既定値を選ばない）。
 
 ## lookup 宣言
 
@@ -84,8 +102,9 @@ safety:
 ```
 
 ### パターン別の省略
-- **リテラルのみ**: `input_csv` / `lookups` を省略。`placeholders` はすべて `agent-literal`。
-- **+CSV**: `lookups` を省略。データ由来は `preprocess-csv`（例 `orderIds`）。
+- **リテラルのみ**: `input_csv` / `variants` / `lookups` を省略。`placeholders` はすべて `agent-literal`。
+- **+CSV**: `lookups` を省略。データ由来は `preprocess-csv`（例 `orderIds`）。`variants` は必要なら併用可
+  （例: バリエーション選択のリテラル＋CSV由来IDの更新）。
 - **+lookup**: 上記フル形。
 
 ## 静的チェックとの対応（`recipe-creation.md`）
@@ -93,6 +112,7 @@ safety:
 | チェック項目 | レシピ上の根拠 |
 | --- | --- |
 | プレースホルダ種別が設計と一致 | `placeholders[].handler` / `source` |
+| `variant:` 参照が options に実在 | `placeholders[].source` ↔ `variants.options[*]` のキー |
 | lookup識別子が実スキーマに存在 | `lookups[].steps[].from/select/key` |
 | 未置換 `{{...}}` が残らない | テンプレの全 `{{key}}` が `placeholders` に定義されている |
 | 実行時の静的安全チェックを通せる枠 | `safety`（transaction / backup / rollback_check） |
