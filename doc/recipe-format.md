@@ -52,9 +52,65 @@ variants:
 
 ## lookup 宣言
 
-- `steps` の各段: `from` / `select` / `key` / `keySource`（`csv:<列>` or `prevStep`）/ `filters`。
-- **read-only**。`key in (vals)` の値だけをパラメータ化。`from/select/key` の識別子は**実スキーマに存在**すること。
+lookupは**2つの書き方**を許可する。どちらも最終的に Runner が受け取る同じJSON契約（`steps`配列）に
+収束するため、Runner側の実装や安全チェックはどちらの書き方でも変わらない。
+
+### 方式A: 構造化YAML（`steps`）
+
+- 各段: `from` / `select` / `key` / `keySource`（`csv:<列>` or `prevStep`）/ `filters`。
 - 多段は `steps` の連鎖で表現（例: `order_id → order_detail_id → sales_id`）。
+- 複雑な形（JOIN・UNION・計算式など）が必要な場合は、現状この方式のみで表現できる可能性がある
+  （方式Bは下記の制約付きテンプレートのみ対応）。将来 Runner 側の変換器が対応形式を増やすまでは、
+  方式Aの範囲でも表現できない形は**レシピを作らない**（要件を見直す）。
+
+### 方式B: SQLテンプレート（初期バージョンはこの形のみ対応）
+
+**単一テーブル・ネストIN句チェーン**という決まった形のSQLで書ける。Agentがこの形を読み、
+ネストの各階層を1ステップとして方式Aと同じJSONに変換してからRunnerへ渡す。
+
+```sql
+/***
+* Lookup用テンプレート
+* ---
+* 単一テーブル・ネストIN句チェーンのみ対応（初期バージョン）
+* 各階層が1ステップに変換される。最内層の in (...) の元はCSV由来の値。
+* ---
+*/
+select
+  <select>
+from
+  <from>
+where
+  <key> in (
+    select
+      <subSelect>
+    from
+      <subFrom>
+    where
+      <subKey> in (<csvValues>)
+  );
+```
+
+プレースホルダ名は方式Aの `steps` フィールド名（`from`/`select`/`key`）にそのまま対応する
+（内側の階層は `sub` を付けて区別）。これによりAgentの変換はほぼ機械的な写し替えになる。
+
+- ネストは何段でもよい（各階層が1ステップになる）。3段以上になる場合は `<subFrom>` の
+  サブクエリの中にさらに同じ形（`select <subSubSelect> from <subSubFrom> where ...`）を入れ子にする。
+- **各階層は単一テーブル・単一カラムのSELECTのみ**。JOIN・UNION・サブクエリ以外の入れ子・
+  計算式・複数カラムSELECTは**この形式では非対応**（初期バージョンのガード対象）。
+  対応形式外のSQLが渡された場合、Agentは変換せずレシピを差し戻す（方式Aへの書き換えを提案）。
+- 例: `fetchSalesIds` 相当（受注ID→order_detail_id→sales_id）は
+  外側=`{from: t_sales, select: sales_id, key: order_detail_id, keySource: prevStep}`、
+  内側=`{from: t_order_detail, select: order_detail_id, key: order_id, keySource: csv:...}`
+  に変換される（`<subFrom>`=t_order_detail, `<subSelect>`=order_detail_id, `<subKey>`=order_id,
+  `<from>`=t_sales, `<select>`=sales_id, `<key>`=order_detail_id）。
+
+### 共通ルール
+
+- **read-only**。`key in (vals)` の値だけをパラメータ化。`from/select/key` の識別子は
+  **実スキーマに存在**すること（Runnerが`information_schema`で検証してから埋め込む）。
+- `filters` は `列名 = リテラル` の厳格な形式のみ許可（自由記述のSQL断片は不可）。
+  列名は同テーブルのallowlistで検証する。
 - 論理削除除外（`logical_delete_flag = 0`）の要否を `filters` に明記。
 
 ## 例（+lookup パターン: 締日・入金日の更新）
