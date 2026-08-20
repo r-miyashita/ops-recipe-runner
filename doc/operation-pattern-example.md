@@ -92,10 +92,12 @@ sequenceDiagram
 | 4   | userId        | Agent         |                                        | 1018                 |
 | 5   | orderIds      | Script Runner | CSVから受注IDを取得し`orderIds`を作成  | 37304,37387,3125,... |
 
+> 実務CSVのヘッダーは日本語表記（受注ID = DBの order_id に対応）。
+
 **CSV**
 
 ```
-order_id,shipping_id,status,shipped_at,tracking_number
+受注ID,出荷ID,ステータス,出荷日時,追跡番号
 10001,20001,shipped,2026-06-10 14:30:00,TRK-ABC123
 10002,20002,shipped,2026-06-10 15:00:00,TRK-DEF456
 10003,20003,shipped,2026-06-11 09:15:00,TRK-GHI789
@@ -225,11 +227,12 @@ sequenceDiagram
 | 4   | invoiceIds     | Script Runner | CSVの受注IDをキーにDBから取得(Lookup Select)         | 27304,27387,3125,... |
 
 > 中間の `orderIds`（CSV由来）は Lookup Select 内で使う内部中間値。二段置換（CSV→orderIds→lookup→invoiceIds）。
+> 実務CSVのヘッダーは日本語表記（受注ID = DBの order_id に対応）。
 
 **CSV**
 
 ```
-order_id,shipping_id,status,shipped_at,tracking_number
+受注ID,出荷ID,ステータス,出荷日時,追跡番号
 10001,20001,shipped,2026-06-10 14:30:00,TRK-ABC123
 10002,20002,shipped,2026-06-10 15:00:00,TRK-DEF456
 10003,20003,shipped,2026-06-11 09:15:00,TRK-GHI789
@@ -241,7 +244,7 @@ order_id,shipping_id,status,shipped_at,tracking_number
 
 ```sql
 /***
-* 受注ID: CSVの`order_id`列を利用して`invoice_id`を抽出
+* 受注ID: CSVの`受注ID`列を利用して`invoice_id`を抽出
 * ---
 */
 select
