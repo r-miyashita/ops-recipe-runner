@@ -6,7 +6,8 @@
   "scripts": {
     "test": "vitest run",
     "test:integration": "vitest run --config vitest.integration.config.ts",
-    "preprocess:extract-column": "tsx src/script/preprocess/extractColumn.ts"
+    "preprocess:extract-column": "tsx src/script/preprocess/extractColumn.ts",
+    "preprocess:run-lookup": "tsx src/script/preprocess/runLookup.ts"
   },
   "keywords": [],
   "author": "",
