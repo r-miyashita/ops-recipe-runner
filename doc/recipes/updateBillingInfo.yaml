@@ -1,0 +1,45 @@
+name: updateBillingInfo
+purpose: 出荷日変更に伴い、対象受注の請求情報（締日・入金予定日・入金猶予日）を更新する
+timing: 月次
+template: doc/recipes/updateBillingInfo.template.sql   # 暫定（Backlog移行前はファイル参照）
+
+# --- 前処理が使う入力CSV ---
+# 実務CSVのヘッダーは日本語表記（受注ID = DBの order_id に対応）
+input_csv:
+  columns:
+    - 受注ID      # 対象受注ID（lookupの種。DB上は order_id）
+
+# --- Host に確認するリテラルパラメータ ---
+parameters:
+  - key: userId
+    meaning: 作業者ID
+    type: number
+  - key: processingMonth
+    meaning: 処理月（この月初を基準に締日・入金日を算出）
+    derives:
+      - "newCloseDate = 処理月の翌月初日"
+      - "newDepositDate = 新締日から2週間後の翌営業日（入金猶予日も同日）"
+
+# --- プレースホルダの handler と由来 ---
+placeholders:
+  - { key: userId,         handler: agent-literal,     source: "param:userId" }
+  - { key: newCloseDate,   handler: agent-literal,     source: "date:処理月の翌月初日" }
+  - { key: newDepositDate, handler: agent-literal,     source: "date:新締日から2週間後の翌営業日" }
+  - { key: invoiceIds,     handler: preprocess-lookup, source: "lookup:invoiceIds" }
+
+# --- 宣言的lookup（受注ID → 請求書ID） ---
+lookups:
+  - name: invoiceIds
+    steps:
+      - from: t_order
+        select: invoice_id
+        key: order_id
+        keySource: "csv:受注ID"
+        filters: ["logical_delete_flag = 0"]
+
+# --- 安全（更新系） ---
+safety:
+  transaction: true            # BEGIN; ... ROLLBACK|COMMIT
+  backup: true                 # 更新前に t_billing_info を backup select
+  rollback_check: "デフォルトはROLLBACKコメントアウト。DML実行は人間が判断して行う"
+  note: "更新系のためチケットにはSQL提示までとし、DB実行はHostが行う"
