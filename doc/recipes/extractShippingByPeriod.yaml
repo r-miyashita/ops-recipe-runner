@@ -1,5 +1,5 @@
 name: extractShippingByPeriod
-purpose: 指定期間に出荷されたデータ（t_shipping）を抽出する（read-only）
+purpose: 指定期間・出荷ステータスで出荷データ（t_shipping）を抽出する（read-only）
 timing: 都度
 template: doc/recipes/extractShippingByPeriod.template.sql   # 暫定（Backlog移行前はファイル参照）
 
@@ -11,11 +11,15 @@ parameters:
   - key: toDate
     meaning: 抽出期間の終了日
     type: "date(YYYY-MM-DD)"
+  - key: shippingStatus
+    meaning: 絞り込む出荷ステータス
+    type: number
 
 # --- プレースホルダの handler と由来（リテラルのみパターン） ---
 placeholders:
-  - { key: fromDate, handler: agent-literal, source: "param:fromDate" }
-  - { key: toDate,   handler: agent-literal, source: "param:toDate" }
+  - { key: fromDate,       handler: agent-literal, source: "param:fromDate" }
+  - { key: toDate,         handler: agent-literal, source: "param:toDate" }
+  - { key: shippingStatus, handler: agent-literal, source: "param:shippingStatus" }
 
 # input_csv / lookups は無し（リテラルのみ）
 
