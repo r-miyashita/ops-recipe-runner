@@ -20,8 +20,8 @@
 - **Backlog**: チケットレシピ＋テンプレSQL（更新用SQLの正。運用メンバーがレビュー）。
 - **Agent**: レシピ解釈・リテラル置換・日付計算・最終SQL組み立て・静的安全チェック・起票。
 - **前処理コア（この repo, `src/lib/`）**: CSV解析・lookup（DB参照）。テンプレSQLは持たない。
-  - `csv.ts` — `parseCsv`（CSV解析）
-  - `queries.ts` — lookup（`fetchInvoiceIds`/`fetchSalesIds`。将来は宣言的な汎用実行器へ）
+  - `csv.ts` — `parseCsv`/`extractColumn`（CSV解析・列抽出）
+  - `lookup.ts` — `runLookupSteps`（宣言的lookupの汎用実行器。レシピの`lookups`宣言をそのまま実行する）
   - `db.ts` — DB接続
 
 将来像とシーケンスは `doc/architecture/ticket-workflow.md`、具体的なオペレーション例は

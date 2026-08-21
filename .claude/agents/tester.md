@@ -12,8 +12,9 @@ model: sonnet
 ## 対象と非対象（重要）
 
 - **対象**: 前処理コアのみ。
-  - 単体: 純粋ロジック（`src/lib/csv.ts` の `parseCsv`、将来の ID抽出helper・lookup組立/allowlist検証）
-  - 結合: DB を挟む lookup（`src/lib/queries.ts` の `fetchInvoiceIds`/`fetchSalesIds` 等）
+  - 単体: 純粋ロジック（`src/lib/csv.ts` の `parseCsv`/`extractColumn`、`src/lib/lookup.ts` の
+    識別子検証・filter解析）
+  - 結合: DB を挟む lookup（`src/lib/lookup.ts` の `runLookupSteps`。単段/多段/allowlist検証を含む）
 - **非対象**: 生成SQLの忠実性（受入）・日付計算（多TZ・祝日）。これらは**Agentの責務**へ移管済み。
   vitest では書かず、`doc/architecture/ticket-workflow.md` の確認観点で担保する（§4 静的安全チェック / §5 日付）。
 

@@ -99,7 +99,7 @@ where
 - **各階層は単一テーブル・単一カラムのSELECTのみ**。JOIN・UNION・サブクエリ以外の入れ子・
   計算式・複数カラムSELECTは**この形式では非対応**（初期バージョンのガード対象）。
   対応形式外のSQLが渡された場合、Agentは変換せずレシピを差し戻す（方式Aへの書き換えを提案）。
-- 例: `fetchSalesIds` 相当（受注ID→order_detail_id→sales_id）は
+- 例: 多段lookup（受注ID→order_detail_id→sales_id）は
   外側=`{from: t_sales, select: sales_id, key: order_detail_id, keySource: prevStep}`、
   内側=`{from: t_order_detail, select: order_detail_id, key: order_id, keySource: csv:...}`
   に変換される（`<subFrom>`=t_order_detail, `<subSelect>`=order_detail_id, `<subKey>`=order_id,

@@ -30,7 +30,7 @@ model: sonnet
 - `doc/requirements/<name>/samples/manual.sql` … 手作業SQL（処理単位・lookup・トランザクション構造の実物）
 - `docker/mysql/dump/schema.sql` または `docker/mysql/init/001_schema.sql` … テーブル定義
 - `doc/operation-pattern-example.md` … リテラル/CSV/lookup の設計パターン例
-- `src/lib/*.ts` … 前処理コアの実例（`queries.ts` の lookup など）
+- `src/lib/*.ts` … 前処理コアの実例（`lookup.ts` の宣言的lookup実行器など）
 
 ## 2つの登場タイミング
 
@@ -46,7 +46,8 @@ model: sonnet
 
 1. **処理フロー**: backup select → `BEGIN` → `UPDATE` → check → `ROLLBACK/COMMIT` を対象テーブルごとに列挙。
 2. **プレースホルダ写像**: `{{key}}` ↔ 種別（リテラル=Agent / データ由来=前処理）と値の由来（CSV列 / lookup名 / 日付ルール）。
-3. **lookup宣言**: `from/select/key/filters`、多段 `steps`、論理削除除外の要否。既存 `queries.ts` で足りるか、新設が要るか。
+3. **lookup宣言**: `from/select/key/filters`、多段 `steps`、論理削除除外の要否（`doc/recipe-format.md` の
+   方式A/Bに従う。`lookup.ts` の汎用実行器がそのまま実行するため、通常は新規コード不要）。
 4. **トランザクション境界・ロールバック基準**: どの単位で切るか、check の期待値（0件など）。
 5. **テーブル/列マッピング**: 更新対象テーブル・列とその値の由来。
 6. **日付の算出ルール**: 基準日からの導出（月初・翌月初・営業日加算など）を言葉で定義（計算はAgent）。

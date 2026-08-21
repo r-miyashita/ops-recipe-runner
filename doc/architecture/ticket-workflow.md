@@ -51,12 +51,16 @@ lookups:
         filters: [logical_delete_flag = 0]
 ```
 
-実行器の性質:
-- 各 step を `select group_concat(distinct {select} separator ',') from {from} where {key} in ({vals}) [and {filters}]` として実行。
+実行器の性質（`src/lib/lookup.ts` の `runLookupSteps` として実装・検証済み）:
+- 各 step を `select distinct {select} from {from} where {key} in ({vals}) [and {filters}]` として実行し、
+  各ステップを**独立したSELECTとして逐次実行**（前段の結果が次段の `{vals}` になる）。
 - **read-only**。`{vals}` のみ値としてパラメータ化。
-- `from` / `select` / `key` の**識別子はスキーマ allowlist で検証**（MySQLは識別子をバインドできないため、実在テーブル/列に限定してインジェクションを塞ぐ）。
-- 多段 lookup は `steps` の連鎖で表現（現行 `fetchSalesIds` の `order_id → order_detail_id → sales_id` もこれで表せる）。
-- 実行器は repo に1つ、単体テストを集約。新規 lookup は「レシピに宣言を足すだけ」でコード追加不要。
+- `from` / `select` / `key` の**識別子はスキーマ allowlist で検証**（`information_schema` へ実在確認して
+  からバッククォートで埋め込む。MySQLは識別子をバインドできないため、実在テーブル/列に限定してインジェク
+  ションを塞ぐ）。`filters` は「列名 = リテラル」の厳格な形式のみ許可（自由記述のSQL断片は拒否）。
+- 多段 lookup は `steps` の連鎖で表現（受注ID → order_detail_id → sales_id もこれで表せる）。
+- 実行器は repo に1つ、単体・結合テストを集約。新規 lookup は「レシピに宣言を足すだけ」でコード追加不要
+  （詳細・2つの書き方(方式A/B)は `doc/recipe-format.md` を参照）。
 
 ### 4. Agent による静的安全チェック（起票前）
 最終SQL組み立て後、チケット化の前に形式面を機械チェック:

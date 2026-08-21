@@ -23,7 +23,7 @@
 | スイート | コマンド | 対象 | 前提 |
 | --- | --- | --- | --- |
 | 単体 | `npm test` | 純粋な前処理（`parseCsv` ほか） | なし（純粋・高速・CI常時） |
-| 結合 | `npm run test:integration` | lookup×DB（`queries.ts` 等） | `docker compose up -d db`（seed投入済み） |
+| 結合 | `npm run test:integration` | lookup×DB（`lookup.ts` の `runLookupSteps`） | `docker compose up -d db`（seed投入済み） |
 
 ## 粒度の原則（作りすぎない・漏らさない）
 
