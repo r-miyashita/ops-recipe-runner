@@ -1,5 +1,5 @@
 name: updateSalesInfo
-purpose: CSVで指定した受注の営業担当情報（担当者・拠点）を更新する
+purpose: CSVで指定した受注の営業担当情報（担当者・拠点）と、紐づく売上の拠点情報を更新する
 timing: 都度
 template: doc/recipes/updateSalesInfo.template.sql   # 暫定（Backlog移行前はファイル参照）
 
@@ -28,17 +28,40 @@ variants:
 
 # --- プレースホルダの handler と由来 ---
 placeholders:
-  - { key: userId,         handler: agent-literal, source: "param:userId" }
-  - { key: salesUserId,    handler: agent-literal, source: "variant:salesUserId" }
-  - { key: salesUserName,  handler: agent-literal, source: "variant:salesUserName" }
-  - { key: salesOfficeId,  handler: agent-literal, source: "variant:salesOfficeId" }
-  - { key: orderIds,       handler: preprocess-csv, source: "csv:受注ID" }
+  - { key: userId,         handler: agent-literal,     source: "param:userId" }
+  - { key: salesUserId,    handler: agent-literal,     source: "variant:salesUserId" }
+  - { key: salesUserName,  handler: agent-literal,     source: "variant:salesUserName" }
+  - { key: salesOfficeId,  handler: agent-literal,     source: "variant:salesOfficeId" }
+  - { key: orderIds,       handler: preprocess-csv,    source: "csv:受注ID" }
+  - { key: salesIds,       handler: preprocess-lookup, source: "lookup:salesIds" }
 
-# lookups は無し（CSVのみ、DB参照なし）
+# --- 宣言的lookup（受注ID → order_detail_id → 売上ID の2重lookup） ---
+# 方式B（SQLテンプレート）で宣言。Agentが階層ごとにstepsへ変換して実行する。
+lookups:
+  - name: salesIds
+    sql: |
+      select
+        sales_id
+      from
+        t_sales
+      where
+        order_detail_id in (
+          select
+            order_detail_id
+          from
+            t_order_detail
+          where
+            order_id in ({{orderIds}})
+            and logical_delete_flag = 0
+        )
+        and logical_delete_flag = 0;
+    # 変換後(steps, 内側から実行):
+    #   1) { from: t_order_detail, select: order_detail_id, key: order_id, keySource: csv:受注ID, filters: [logical_delete_flag = 0] }
+    #   2) { from: t_sales,        select: sales_id,        key: order_detail_id, keySource: prevStep, filters: [logical_delete_flag = 0] }
 
 # --- 安全（更新系） ---
 safety:
-  transaction: true            # BEGIN; ... ROLLBACK|COMMIT
-  backup: true                 # 更新前に t_order を backup select
+  transaction: true            # BEGIN; ... ROLLBACK|COMMIT（受注データ変更・売上データ変更それぞれ）
+  backup: true                 # 更新前に t_order / t_sales を backup select
   rollback_check: "デフォルトはROLLBACKコメントアウト。DML実行は人間が判断して行う"
   note: "更新系のためチケットにはSQL提示までとし、DB実行はHostが行う"

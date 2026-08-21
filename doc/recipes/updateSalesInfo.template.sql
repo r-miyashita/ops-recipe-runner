@@ -62,3 +62,43 @@ WHERE
 ROLLBACK;
 -- COMMIT;
 -- -----
+
+
+/***
+* 売上データ変更
+* ---
+* 対象売上の更新
+* ---
+* - 更新キー: 受注IDキーで取得した売上ID
+*     - ids: {{salesIds}}
+* - 更新情報:
+*     - 担当情報:
+*       - sales_office_id
+*/
+
+/***
+* backup
+*/
+select * from t_sales
+where sales_id in ({{salesIds}});
+
+
+/***
+* update
+*/
+-- -----
+BEGIN;
+-- -----
+
+UPDATE `t_sales`
+SET
+  `sales_office_id` = @salesOfficeId,
+  `update_datetime` = @updateDatetime,
+  `update_user_id` = @userId
+WHERE
+  `sales_id` IN ({{salesIds}});
+
+-- -----
+ROLLBACK;
+-- COMMIT;
+-- -----
