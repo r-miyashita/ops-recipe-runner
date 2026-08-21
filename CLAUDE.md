@@ -1,7 +1,7 @@
 # script-sandbox
 
 運用スクリプトを題材にしたJS/TS sandbox。運用メンバーが手作業で流しているSQLを、入力(CSV)と
-テンプレートのプレースホルダーから再現し、（将来は）Backlogチケットとして起票する AI駆動ワークフローを構築する。
+テンプレートのプレースホルダーから再現し、Backlogチケットとして起票する AI駆動ワークフローを構築する。
 
 ## このプロジェクトの目的（価値観・全担当の前提）
 
@@ -27,17 +27,26 @@
 将来像とシーケンスは `doc/architecture/ticket-workflow.md`、具体的なオペレーション例は
 `doc/operation-pattern-example.md` を参照。
 
+## 入力CSV（重要）
+
+**実務CSVのヘッダーは日本語表記**（例: `受注ID` = DBの `order_id`）。レシピの `input_csv.columns` や
+`placeholders[].source`（`csv:<列名>`）・`lookups[].steps[].keySource`（`csv:<列名>`）は
+日本語の列名で書く。DBの列名（英語）とは別物として扱い、混同しない。
+
 ## 運用ワークフロー（担当エージェント）
 
-新しい定例の作成は、フェーズごとの担当エージェント（`.claude/agents/`）で進める。
+新しい定例の作成・修正・実行は `.claude/skills/recipe-ops/`（ルータースキル）から入る。
+意図（作成/修正/チケット新規/SQL追記）を判定し、フェーズごとの担当エージェント（`.claude/agents/`）
+へ振り分ける。各フェーズの完了後は「次へ進めますか？」で確認を挟む。
 
 | フェーズ | 担当 | 主な成果物 |
 | --- | --- | --- |
 | 要件 | requirements-analyst | `doc/requirements/<name>/<name>.md` |
-| 設計 | designer | `doc/requirements/<name>/design.md` |
-| 実装 | implementer | 前処理コード（必要時）＋ Backlogのレシピ/テンプレ |
+| 設計 | designer | `doc/requirements/<name>/design.md`（叩き台→実装後は齟齬突合） |
+| 実装 | implementer | 前処理コード（必要時のみ。まずコードを増やさない） |
 | テスト | tester | vitest（単体＋結合） |
-| ドキュメント/レビュー/PJ管理 | documenter / reviewer / new-routine スキル | （未整備） |
+| ドキュメント | documenter | ①Backlogレシピ ②運用ドキュメント（`doc/recipe-format.md`準拠） |
+| レビュー | reviewer | 最終ゲート。横断の一貫性・重複・必要十分性・データ安全性の二重チェック |
 
 ## テスト
 
@@ -61,3 +70,4 @@
 - 入金予定日=入金猶予日の同日仕様など、要件どおりか。
 - 「翌月初」等の起点月がズレていないか。
 - SQL上は `'YYYY-MM-DD'` とクォート付きの日付リテラルか（`2026-07-15` の数値計算に化けていないか）。
+- 「処理月」等が**月のみ**で伝えられた場合、西暦年を勝手に決めず運用メンバーに確認する。
