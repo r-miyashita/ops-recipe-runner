@@ -6,7 +6,7 @@
 
 ## 位置づけ
 
-- テンプレSQL・レシピは **Backlog が正**（移行前はファイルで暫定管理）。
+- テンプレSQL・レシピは **Backlog が正**。この repo（Script Runner）にはテンプレSQLを持たない。
 - レシピは「テンプレSQLの**どのプレースホルダを、誰が、何から**埋めるか」を宣言する。
 - 3パターン（リテラルのみ / +CSV / +lookup）を**同じ形式**で表す（不要な節は省略してよい）。
 
@@ -17,7 +17,7 @@
 | `name` | ✔ | レシピ名（定例の識別子） |
 | `purpose` | ✔ | 目的（1〜2文） |
 | `timing` | | 実行タイミング（月初 など） |
-| `template` | ✔ | テンプレSQLの所在（Backlogドキュメント参照。暫定はファイルパス） |
+| `template` | ✔ | テンプレSQLの所在（`backlog:doc/<id>` 形式でBacklogドキュメントを参照） |
 | `input_csv` | | 前処理が使う入力CSV（列と意味） |
 | `parameters` | | Host に確認するリテラルパラメータ（と日付の派生ルール） |
 | `variants` | | Host が選ぶ1パラメータに複数リテラルが連動するバリエーション定義 |
@@ -119,7 +119,7 @@ where
 name: updateShippingAndBillingInfo
 purpose: 出荷日変更に伴い、対象受注の締日・入金日を更新する
 timing: 月初
-template: backlog:doc/<id>   # 暫定: doc/requirements/<name>/samples/manual.sql 由来
+template: backlog:doc/<id>   # 元は doc/requirements/<name>/samples/manual.sql の手作業SQL
 
 input_csv:
   columns:

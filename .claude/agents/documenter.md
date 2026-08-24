@@ -33,7 +33,7 @@ model: sonnet
 
 ## 成果物
 
-### ① Agent向けレシピ（Backlog。移行前の暫定はファイルで可）
+### ① Agent向けレシピ（Backlogドキュメントとして登録。この repo にはテンプレSQLを持たない）
 **`doc/recipe-format.md` の正準フォーマットに従う**（`name/purpose/template/input_csv/parameters/placeholders/lookups/safety`）。
 - プレースホルダを handler で宣言（`agent-literal` / `preprocess-csv` / `preprocess-lookup`）と `source`。
 - lookup は宣言的に（`from/select/key/keySource/filters`・多段 steps・論理削除除外）。生SQLを直書きしない。

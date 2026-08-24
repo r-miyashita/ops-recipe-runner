@@ -15,11 +15,12 @@
 
 ## アーキテクチャ（責務分割）
 
-テンプレSQL・レシピは Backlog に外出しし、コード（この repo）は「前処理」に専念する。
+**この repo は「Script Runner」＝前処理の実行環境**。テンプレSQL・レシピは Backlog に外出しし、
+この repo にはテンプレSQL・レシピの実体を一切持たない（ローカルファイルでの暫定管理もしない）。
 
 - **Backlog**: チケットレシピ＋テンプレSQL（更新用SQLの正。運用メンバーがレビュー）。
 - **Agent**: レシピ解釈・リテラル置換・日付計算・最終SQL組み立て・静的安全チェック・起票。
-- **前処理コア（この repo, `src/lib/`）**: CSV解析・lookup（DB参照）。テンプレSQLは持たない。
+- **前処理コア（この repo, `src/lib/`）**: CSV解析・lookup（DB参照）のみ。テンプレSQLは持たない。
   - `csv.ts` — `parseCsv`/`extractColumn`（CSV解析・列抽出）
   - `lookup.ts` — `runLookupSteps`（宣言的lookupの汎用実行器。レシピの`lookups`宣言をそのまま実行する）
   - `db.ts` — DB接続
