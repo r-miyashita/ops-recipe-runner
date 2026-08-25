@@ -57,9 +57,11 @@
 
 ## DB
 
-- スキーマ/seed: `docker/mysql/init/`（初回コンテナ作成時のみ実行）。スキーマ変更の反映は
-  `docker compose down -v && docker compose up -d db` が必要。
-- dump復元: `docker/mysql/dump/`（手動配置＋手動復元。スキーマ空ダンプ `schema.sql` も可）。
+- 初回コンテナ作成時（ボリュームが空の時）、`docker/mysql/init/000_bootstrap.sh` が
+  `docker/mysql/dump/latest.sql` の有無を判定する。あれば復元、無ければ既定のスキーマ/seed
+  （`docker/mysql/init/default/001_schema.sql`/`002_seed.sql`）を適用する。反映のやり直しは
+  `docker compose down -v && docker compose up -d db`。
+- dump: `docker/mysql/dump/`（`latest.sql`=自動復元用。それ以外は手動復元。スキーマ空ダンプ`schema.sql`も可）。
 - 金額カラムは `INT`、ID系は `BIGINT`、論理削除は `logical_delete_flag TINYINT NOT NULL DEFAULT 0`。
 
 ## 日付の扱い（Agentの確認観点）
