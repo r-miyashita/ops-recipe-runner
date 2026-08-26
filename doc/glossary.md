@@ -14,11 +14,6 @@
 | **local-db container** | 任意のdumpからMySQLを起動するDockerコンテナ（`docker-compose.yml`の`db`サービス）。クエリの中身は一切知らない受動的なDB提供元。Script Runner（`lookup.ts`/`db.ts`）が直接接続してクエリを実行する | 実装済み |
 | **Backlog MCP** | レシピ（テンプレSQL含む）の保管、チケットの起票・追記を担う外部連携（Backlog MCPサーバー経由） | 実装済み |
 
-> 旧称: `Mysql Runner`／`Database Runner`／`db-runner`／`local-db` はすべて **local-db container**
-> に統一する。「Runner」という能動的な名前がついていたが、実態はScript Runnerが直接クエリを
-> 組み立てて実行する先の、ただのMySQLインスタンス（受動的）。`local-db`単体だと各自のマシンに
-> 直接インストールされたMySQLのようにも読めるため、**Dockerコンテナであること**を明示する。
-
 ## データ・成果物
 
 | 用語 | 意味 |
