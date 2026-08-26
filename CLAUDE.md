@@ -3,7 +3,7 @@
 運用スクリプトを題材にしたJS/TS sandbox。運用メンバーが手作業で流しているSQLを、入力(CSV)と
 テンプレートのプレースホルダーから再現し、Backlogチケットとして起票する AI駆動ワークフローを構築する。
 
-用語（Host / Script Runner / local-db container 等）に迷ったら `doc/glossary.md` を参照。
+用語（Host / Script Runner / Local DB Container 等）に迷ったら `doc/glossary.md` を参照。
 新しい用語を使う・命名に迷うときはグロッサリーを更新すること。
 
 ## このプロジェクトの目的（価値観・全担当の前提）

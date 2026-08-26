@@ -18,7 +18,7 @@
 | Host（運用メンバー） | 依頼・パラメータ提供・内容承認。業務妥当性のレビュー |
 | Claude Agent | レシピ解釈・リテラル置換・前処理のオーケストレーション・最終SQL組み立て・静的安全チェック・起票 |
 | Script Runner（前処理専門） | 宣言に基づく汎用 lookup 実行（read-only）。SQLテンプレは持たない |
-| local-db container | DB 起動・SELECT 実行 |
+| Local DB Container | DB 起動・SELECT 実行 |
 | Backlog MCP | レシピ／テンプレSQLの保管（正）・チケット起票 |
 
 ## 決定事項
@@ -95,7 +95,7 @@ sequenceDiagram
     participant host as Host
     participant agent as Claude Agent
     participant runner as Script Runner (前処理専門)
-    participant mysql as local-db container
+    participant mysql as Local DB Container
     participant bMcp as Backlog MCP
 
     host->>agent: Ticket Create Request

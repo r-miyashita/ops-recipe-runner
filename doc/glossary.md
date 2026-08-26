@@ -11,7 +11,7 @@
 | **Host** | 運用メンバー（人間）。Agentに依頼し、パラメータを確認し、最終SQLを承認する | 実装済み |
 | **Claude Agent（Agent）** | レシピ解釈・リテラル置換・日付計算・最終SQL組み立て・静的安全チェック・起票を行うAIオーケストレーター | 実装済み |
 | **Script Runner** | このリポジトリ（script-sandbox）自体。CSV解析・宣言的lookup実行など「前処理」の実行環境。テンプレSQL・レシピの実体は持たない | 実装済み |
-| **local-db container** | 任意のdumpからMySQLを起動するDockerコンテナ（`docker-compose.yml`の`db`サービス）。クエリの中身は一切知らない受動的なDB提供元。Script Runner（`lookup.ts`/`db.ts`）が直接接続してクエリを実行する | 実装済み |
+| **Local DB Container** | 任意のdumpからMySQLを起動するDockerコンテナ（`docker-compose.yml`の`db`サービス）。クエリの中身は一切知らない受動的なDB提供元。Script Runner（`lookup.ts`/`db.ts`）が直接接続してクエリを実行する | 実装済み |
 | **Backlog MCP** | レシピ（テンプレSQL含む）の保管、チケットの起票・追記を担う外部連携（Backlog MCPサーバー経由） | 実装済み |
 
 ## データ・成果物
@@ -59,4 +59,4 @@
 | --- | --- | --- |
 | **orchestration.skill** | 全体統括のみを担うスキル。現状の`recipe-ops`から分割される可能性がある | 構想 |
 | **script-runner.skill** | Script Runner（このリポジトリ）を呼ぶ薄いラッパースキル | 構想 |
-| **db-runner.skill** | local-db containerの起動・利用を担う想定のスキル | 構想 |
+| **db-runner.skill** | Local DB Containerの起動・利用を担う想定のスキル | 構想 |
