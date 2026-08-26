@@ -128,8 +128,16 @@ sequenceDiagram
     end
 ```
 
-## 現行方式との関係
+## 実装状況
 
-- 現行: `script.ts` が テンプレ読込・CSV解析・lookup・置換・出力を一手に担う（1定例＝1スクリプト）。
-- 将来: テンプレは Backlog、lookup は宣言＋汎用実行器、置換は Agent。Script Runner は前処理専門に痩せる。
-- 移行は段階的に判断（本書は方針合意のみ）。
+上記のシーケンスは実装済み・実地検証済み（`doc/glossary.md`の Local DB Container 含め、
+Backlog MCP経由で3パターン=リテラルのみ/+CSV/+lookupのチケット起票を確認）。
+
+- テンプレSQL・レシピは Backlog に外出し済み（`doc/recipes/`は廃止。この repo＝Script Runner は
+  テンプレSQL・レシピの実体を持たない）。
+- lookup は宣言（`doc/recipe-format.md` の方式A/B）＋汎用実行器（`src/lib/lookup.ts`）で実行。
+- プレースホルダ置換・最終SQL組み立ては Agent が担う。
+
+> 旧方式（廃止済み）: かつては `script.ts` がテンプレ読込・CSV解析・lookup・置換・出力を
+> 一手に担う「1定例＝1スクリプト」構成だった。該当コード（`src/script/routine/`等）は
+> 前処理コアへの刈り込みで削除済み。
