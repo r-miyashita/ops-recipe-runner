@@ -30,8 +30,26 @@
 | handler | 埋める人 | source の書き方 |
 | --- | --- | --- |
 | `agent-literal` | Agent | `param:<名>` / `fixed:<値>` / `date:<ルール>` / `variant:<key>`（下記 variants を参照） |
-| `preprocess-csv` | 前処理 | `csv:<列名>`（CSVから抽出しカンマ連結） |
+| `preprocess-csv` | 前処理 | `csv:<列名>`（CSVから抽出しカンマ連結）。任意で `filter: "列名 = 値"` を併記すると、一致する行だけを対象にしてから抽出する |
 | `preprocess-lookup` | 前処理 | `lookup:<名>`（下記 lookups を実行） |
+
+## preprocess-csv の filter（行の絞り込み）
+
+CSVの中で特定条件の行だけを対象にしたい場合（例: ステータスが特定の値の行だけ更新したい）に使う。
+列抽出だけでは表現できない前処理なので、`filter` を明示的に宣言する。
+
+```yaml
+placeholders:
+  - key: orderIds
+    handler: preprocess-csv
+    source: "csv:受注ID"
+    filter: "ステータス = shipped"   # 一致する行だけを対象にしてからorderIdsを抽出
+```
+
+- `filter` は「列名 = 値」の厳格な形式のみ許可（`src/lib/csv.ts` の `filterRows`/`parseCsvFilter`）。
+  自由記述の条件式（範囲指定・OR等）は非対応（初期バージョンのガード対象。要件を見直すか
+  複数のfilterを重ねる形で表現できないか検討する）。
+- CSV値は常に文字列なので、SQLのようなクォート区別は不要（`filter: "ステータス = shipped"` のように書く）。
 
 ## variants 宣言（バリエーション選択）
 

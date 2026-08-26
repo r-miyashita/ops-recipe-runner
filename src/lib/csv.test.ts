@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseCsv, extractColumn } from "./csv.js";
+import { parseCsv, extractColumn, parseCsvFilter, filterRows } from "./csv.js";
 
 describe("parseCsv", () => {
   const header = `col_1,col_2,col_3`;
@@ -58,6 +58,51 @@ describe("extractColumn", () => {
   });
   it("存在しない列を指定するとエラーを投げる", () => {
     expect(() => extractColumn(rows, "unknown")).toThrow(
+      '列 "unknown" が見つかりません',
+    );
+  });
+});
+
+describe("parseCsvFilter", () => {
+  it("列名 = 値を解析する", () => {
+    expect(parseCsvFilter("status = shipped")).toEqual({
+      column: "status",
+      value: "shipped",
+    });
+  });
+  it("日本語の列名・値も解析する", () => {
+    expect(parseCsvFilter("ステータス = 出荷済み")).toEqual({
+      column: "ステータス",
+      value: "出荷済み",
+    });
+  });
+  it("=を含まない文字列は拒否する", () => {
+    expect(parseCsvFilter("status shipped")).toBeNull();
+  });
+});
+
+describe("filterRows", () => {
+  const rows = [
+    { order_id: "10001", status: "shipped" },
+    { order_id: "10002", status: "pending" },
+    { order_id: "10003", status: "shipped" },
+  ];
+  it("列名 = 値に一致する行だけを返す", () => {
+    expect(filterRows(rows, "status = shipped")).toEqual([
+      { order_id: "10001", status: "shipped" },
+      { order_id: "10003", status: "shipped" },
+    ]);
+  });
+  it("一致する行が無ければ空配列を返す", () => {
+    expect(filterRows(rows, "status = cancelled")).toEqual([]);
+  });
+  it("不正な形式のfilterはエラーを投げる", () => {
+    expect(() => filterRows(rows, "status shipped")).toThrow(
+      'filterは "列名 = 値" 形式のみ許可します',
+    );
+  });
+  it("存在しない列を指定するとエラーを投げる", () => {
+    expect(() => filterRows(rows, "unknown = x")).toThrow(
       '列 "unknown" が見つかりません',
     );
   });
