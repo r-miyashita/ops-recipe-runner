@@ -5,7 +5,7 @@
 - 簡単な置換はAgentがそのまま実施する
 - 前処理を必要とする内容はScript Runnerが受け持つ
 
-| #   | use case               | Agent | Script Runner | Database Runner |
+| #   | use case               | Agent | Script Runner | local-db container |
 | :-- | :--------------------- | :---- | :------------ | :-------------- |
 | 1   | リテラル置換のみ(日付) | yes   | no            | no              |
 | 2   | CSVからID取得          | no    | yes           | no              |
@@ -55,7 +55,7 @@ sequenceDiagram
     participant host as Host
     participant agent as Claude Agent
     participant runner as Script Runner
-    participant mysql as Mysql Runner
+    participant mysql as local-db container
     participant bMcp as Backlog MCP
 
     %% --- 事前準備（直列処理） ---
@@ -182,7 +182,7 @@ sequenceDiagram
     participant host as Host
     participant agent as Claude Agent
     participant runner as Script Runner
-    participant mysql as Mysql Runner
+    participant mysql as local-db container
     participant bMcp as Backlog MCP
 
     %% --- 事前準備（直列処理） ---
@@ -317,7 +317,7 @@ sequenceDiagram
     participant host as Host
     participant agent as Claude Agent
     participant runner as Script Runner
-    participant mysql as Mysql Runner
+    participant mysql as local-db container
     participant bMcp as Backlog MCP
 
     %% --- 事前準備（直列処理） ---
