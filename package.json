@@ -1,5 +1,5 @@
 {
-  "name": "script-sandbox",
+  "name": "ops-recipe-runner",
   "version": "1.0.0",
   "type": "module",
   "main": "index.js",
@@ -9,10 +9,17 @@
     "preprocess:extract-column": "tsx src/script/preprocess/extractColumn.ts",
     "preprocess:run-lookup": "tsx src/script/preprocess/runLookup.ts"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "keywords": [
+    "ops",
+    "claude-code",
+    "mcp",
+    "backlog",
+    "sql",
+    "ai-agent"
+  ],
+  "author": "r-miyashita",
+  "license": "MIT",
+  "description": "手作業の定型SQLをレシピ化し、CSV前処理とDB lookupを経てレビュー可能なBacklogチケットとして起票する運用ワークフロー",
   "devDependencies": {
     "@types/node": "^25.9.3",
     "prettier": "^3.8.4",

@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { runLookupSteps } from "./lookup.js";
 
 // 結合テスト（DB依存）。`docker compose up -d db`（seed投入済み）が前提。
-// 期待値は docker/mysql/init/002_seed.sql から導出する（queries.integration.test.ts と同じ期待値）。
+// 期待値は docker/mysql/init/default/002_seed.sql から導出する。
 const orderIds = ["10001", "10002", "10003", "10004", "10005"];
 const norm = (arr: string[]) => [...arr].sort();
 

@@ -3,9 +3,9 @@
 **方針**
 
 - 簡単な置換はAgentがそのまま実施する
-- 前処理を必要とする内容はScript Runnerが受け持つ
+- 前処理を必要とする内容は前処理コアが受け持つ
 
-| #   | use case               | Agent | Script Runner | Local DB Container |
+| #   | use case               | Agent | 前処理コア | Local DB Container |
 | :-- | :--------------------- | :---- | :------------ | :-------------- |
 | 1   | リテラル置換のみ(日付) | yes   | no            | no              |
 | 2   | CSVからID取得          | no    | yes           | no              |
@@ -54,7 +54,7 @@ where
 sequenceDiagram
     participant host as Host
     participant agent as Claude Agent
-    participant runner as Script Runner
+    participant runner as 前処理コア
     participant mysql as Local DB Container
     participant bMcp as Backlog MCP
 
@@ -90,7 +90,7 @@ sequenceDiagram
 | 2   | salesUserName | Agent         | レシピのバリエーションを参照し置換する | teamA                |
 | 3   | salesOfficeId | Agent         | レシピのバリエーションを参照し置換する | 5                    |
 | 4   | userId        | Agent         |                                        | 1018                 |
-| 5   | orderIds      | Script Runner | CSVから受注IDを取得し`orderIds`を作成  | 37304,37387,3125,... |
+| 5   | orderIds      | 前処理コア | CSVから受注IDを取得し`orderIds`を作成  | 37304,37387,3125,... |
 
 > 実務CSVのヘッダーは日本語表記（受注ID = DBの order_id に対応）。
 
@@ -181,7 +181,7 @@ ROLLBACK;
 sequenceDiagram
     participant host as Host
     participant agent as Claude Agent
-    participant runner as Script Runner
+    participant runner as 前処理コア
     participant mysql as Local DB Container
     participant bMcp as Backlog MCP
 
@@ -224,7 +224,7 @@ sequenceDiagram
 | 1   | newCloseDate   | Agent         | 元々の締日翌月1日（対象締月7月の場合は8月1日を指定） | 2026-08-01           |
 | 2   | newDepositDate | Agent         | 新締日から2週間後の翌営業日を指定                    | 2026-08-17           |
 | 3   | userId         | Agent         |                                                      | 1018                 |
-| 4   | invoiceIds     | Script Runner | CSVの受注IDをキーにDBから取得(Lookup Select)         | 27304,27387,3125,... |
+| 4   | invoiceIds     | 前処理コア | CSVの受注IDをキーにDBから取得(Lookup Select)         | 27304,27387,3125,... |
 
 > 中間の `orderIds`（CSV由来）は Lookup Select 内で使う内部中間値。二段置換（CSV→orderIds→lookup→invoiceIds）。
 > 実務CSVのヘッダーは日本語表記（受注ID = DBの order_id に対応）。
@@ -316,7 +316,7 @@ ROLLBACK;
 sequenceDiagram
     participant host as Host
     participant agent as Claude Agent
-    participant runner as Script Runner
+    participant runner as 前処理コア
     participant mysql as Local DB Container
     participant bMcp as Backlog MCP
 

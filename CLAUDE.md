@@ -1,9 +1,9 @@
-# script-sandbox
+# ops-recipe-runner
 
 運用スクリプトを題材にしたJS/TS sandbox。運用メンバーが手作業で流しているSQLを、入力(CSV)と
 テンプレートのプレースホルダーから再現し、Backlogチケットとして起票する AI駆動ワークフローを構築する。
 
-用語（Host / Script Runner / Local DB Container 等）に迷ったら `doc/glossary.md` を参照。
+用語（Host / 前処理コア / Local DB Container 等）に迷ったら `doc/glossary.md` を参照。
 新しい用語を使う・命名に迷うときはグロッサリーを更新すること。
 
 ## このプロジェクトの目的（価値観・全担当の前提）
@@ -18,8 +18,9 @@
 
 ## アーキテクチャ（責務分割）
 
-**この repo は「Script Runner」＝前処理の実行環境**。テンプレSQL・レシピは Backlog に外出しし、
-この repo にはテンプレSQL・レシピの実体を一切持たない（ローカルファイルでの暫定管理もしない）。
+**この repo は `ops-recipe-runner` ＝レシピを実行するための一式**（エージェント定義・前処理コア・DB環境）。
+テンプレSQL・レシピは Backlog に外出しし、この repo にはテンプレSQL・レシピの実体を一切持たない
+（ローカルファイルでの暫定管理もしない）。レシピ解釈・SQL組み立ては Agent、CSV解析・lookup は前処理コアが担う。
 
 - **Backlog**: チケットレシピ＋テンプレSQL（更新用SQLの正。運用メンバーがレビュー）。
 - **Agent**: レシピ解釈・リテラル置換・日付計算・最終SQL組み立て・静的安全チェック・起票。
@@ -39,18 +40,18 @@
 
 ## 運用ワークフロー（担当エージェント）
 
-新しい定例の作成・修正・実行は `.claude/skills/recipe-ops/`（ルータースキル）から入る。
+新しい定例の作成・修正・実行は `.claude/skills/ops-recipe-runner/`（ルータースキル）から入る。
 意図（作成/修正/チケット新規/SQL追記）を判定し、フェーズごとの担当エージェント（`.claude/agents/`）
 へ振り分ける。各フェーズの完了後は「次へ進めますか？」で確認を挟む。
 
 | フェーズ | 担当 | 主な成果物 |
 | --- | --- | --- |
-| 要件 | requirements-analyst | `doc/requirements/<name>/<name>.md` |
-| 設計 | designer | `doc/requirements/<name>/design.md`（叩き台→実装後は齟齬突合） |
-| 実装 | implementer | 前処理コード（必要時のみ。まずコードを増やさない） |
-| テスト | tester | vitest（単体＋結合） |
-| ドキュメント | documenter | ①Backlogレシピ ②運用ドキュメント（`doc/recipe-format.md`準拠） |
-| レビュー | reviewer | 最終ゲート。横断の一貫性・重複・必要十分性・データ安全性の二重チェック |
+| 要件 | recipe-requirements-analyst | `doc/requirements/<name>/<name>.md` |
+| 設計 | recipe-designer | `doc/requirements/<name>/design.md`（叩き台→実装後は齟齬突合） |
+| 実装 | recipe-implementer | 前処理コード（必要時のみ。まずコードを増やさない） |
+| テスト | recipe-tester | vitest（単体＋結合） |
+| ドキュメント | recipe-documenter | ①Backlogレシピ ②運用ドキュメント（`doc/recipe-format.md`準拠） |
+| レビュー | recipe-reviewer | 最終ゲート。横断の一貫性・重複・必要十分性・データ安全性の二重チェック |
 
 ## テスト
 
@@ -69,8 +70,8 @@
 
 ## 日付の扱い（Agentの確認観点）
 
-日付計算（締日・入金日など）は **Agent の責務**（コードには持たない）。過去に踏んだ落とし穴を
-再発させないため、Agent が日付を出したら次を確認する（詳細は `doc/architecture/ticket-workflow.md` §5）:
+日付計算（締日・入金日など）は **Agent の責務**（コードには持たない）。祝日・営業日の扱いは
+間違いやすいため、Agent が日付を出したら次を確認する（詳細は `doc/architecture/ticket-workflow.md` §5）:
 
 - 週末・日本の祝日をまたぐ「◯営業日後」は翌営業日へ繰り上がっているか。
 - 入金予定日=入金猶予日の同日仕様など、要件どおりか。

@@ -7,6 +7,10 @@ node_modules/
 # 生成物（in.csv + テンプレートから再生成可能）
 **/data/out.sql
 
+# Agentが受け取った入力CSV等の一時置き場。実務データ（本番相当）を含みうるため追跡しない。
+# ワークフロー完了後はAgentが削除する。
+work/
+
 # 手動配置のDBダンプ（本番相当データの可能性あり。READMEは追跡する）
 docker/mysql/dump/*.sql
 

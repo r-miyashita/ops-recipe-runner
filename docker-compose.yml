@@ -1,12 +1,13 @@
 services:
   db:
     image: mysql:8.0
-    container_name: script-sandbox-db
+    container_name: ops-recipe-runner-db
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: sandbox
     ports:
-      - "3307:3306"
+      # ローカル開発用のため localhost からのみ接続可能にする（外部公開しない）
+      - "127.0.0.1:3307:3306"
     volumes:
       - ./docker/mysql/init:/docker-entrypoint-initdb.d
       - ./docker/mysql/dump:/docker-entrypoint-initdb.d/dump

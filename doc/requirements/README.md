@@ -38,4 +38,4 @@ Backlog連携（MCP）が使える状態なら、`backlog.md`にコピペしな�
 AIが提出物を読み取り、不足だけを質問し、`doc/requirements/<レシピ名>/<レシピ名>.md` に
 要件シートを作成します。あなたはその内容が業務として正しいかを確認するだけで済みます。
 要件が固まった後は、設計→実装（必要な場合のみ）→テスト→**Backlogへのレシピ登録**まで
-AIが進めます（詳細は `.claude/skills/recipe-ops/SKILL.md`）。
+AIが進めます（詳細は `.claude/skills/ops-recipe-runner/SKILL.md`）。
